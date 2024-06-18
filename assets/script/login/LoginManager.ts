@@ -1,5 +1,7 @@
-import { _decorator, Animation, Component, EventTouch, Node, Sprite } from 'cc';
+import { _decorator, Animation, Component, director, EditBox, EventTouch, Node, Sprite } from 'cc';
 const { ccclass, property } = _decorator;
+import axios from 'axios';
+import AxiosUtil from '../common/AxiosUtil';
 
 @ccclass('LoginManager')
 export class LoginManager extends Component {
@@ -12,6 +14,9 @@ export class LoginManager extends Component {
 
     @property(Node)
     public userCheck: Node = null;
+
+    @property(Node)
+    public accEditBox: Node = null;
 
     start() {
 
@@ -29,7 +34,10 @@ export class LoginManager extends Component {
     public touristLogin() {
         // 校验协议
         if (this.hanldeUserCheck()) {
-
+            // 测试请求
+            AxiosUtil.get('/user/testGet', {}).then(res => {
+                console.log(res);
+            });
         }
     }
 
@@ -72,6 +80,16 @@ export class LoginManager extends Component {
             // 取消勾选
             this.userCheck.getComponent(Sprite).enabled = false;
         }
+    }
+
+    public login() {
+        let userCode = this.accEditBox.getComponent(EditBox).string;
+        AxiosUtil.get(`/user/login/${userCode}`, {}).then((res: any) => {
+            if (res.data) {
+                localStorage.setItem("userCode", res.data)
+                director.loadScene("hall");
+            }
+        });
     }
 }
 
